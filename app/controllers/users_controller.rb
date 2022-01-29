@@ -46,7 +46,6 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      binding.pry
       params.require(:user).permit(:user_name, :score)
     end
 end
