@@ -16,8 +16,11 @@ class UsersController < ApplicationController
   # POST /users
   def create
     @user = User.new(user_params)
+    user_exist = User.find_by(user_name: @user.user_name, auth_provider: @user.auth_provider)
 
-    if @user.save
+    if user_exist
+      render json: { "message": "user_exist" }, status: :no_content
+    elsif @user.save
       render json: @user, status: :created, location: @user
     else
       render json: @user.errors, status: :unprocessable_entity
@@ -46,6 +49,6 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:user_name, :score)
+      params.require(:user).permit(:user_name, :score, :auth_provider)
     end
 end

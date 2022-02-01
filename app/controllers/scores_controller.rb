@@ -3,7 +3,8 @@ class ScoresController < ApplicationController
 
   # GET /scores
   def index
-    @scores = Score.all
+    # ユーザごとのベストscore 30人まで
+    @scores = User.eager_load(:scores).where("scores.score > 0").order(score: :desc).map{ |user| { user_name: user.user_name, score: user.scores[0].try(:score), date: user.scores[0].try(:created_at).strftime("%Y-%m-%d %H:%M:%S") } }.first(30)
 
     render json: @scores
   end
@@ -15,9 +16,15 @@ class ScoresController < ApplicationController
 
   # POST /scores
   def create
-    @score = Score.new(score_params)
+    @user = User.find_by(user_params)
+    render json: { "message": "user_not_found" }, status: :unauthorized and return unless @user
 
-    if @score.save
+    @score = @user.scores.new(score_params)
+    score_exist = Score.find_by(user_id: @score.user_id, score: @score.score)
+
+    if score_exist
+      render json: { "message": "score_exist" }, status: :no_content
+    elsif @score.save
       render json: @score, status: :created, location: @score
     else
       render json: @score.errors, status: :unprocessable_entity
@@ -46,6 +53,10 @@ class ScoresController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def score_params
-      params.require(:score).permit(:score, :user_id)
+      params.require(:score).permit(:score, :user_id, :user_name)
+    end
+
+    def user_params
+      params.require(:user).permit(:user_name, :auth_provider)
     end
 end
