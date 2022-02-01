@@ -1,6 +1,12 @@
 class ScoresController < ApplicationController
   before_action :set_score, only: %i[ show update destroy ]
 
+  def hello
+    # ユーザごとのベストscore 30人まで
+
+    render json: { "response": "ok"}
+  end
+
   # GET /scores
   def index
     # ユーザごとのベストscore 30人まで
