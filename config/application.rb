@@ -28,7 +28,7 @@ module QaRails
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-          origins "localhost:3000", "https://qa-next.vercel.app/", "https://qa-rails.herokuapp.com", "qa-rails.herokuapp.com"
+          origins "localhost:3000", "https://qa-next.vercel.app"
           resource "*",
           headers: :any,
           methods: [:get, :post, :options, :head]
