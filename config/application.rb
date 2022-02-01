@@ -16,12 +16,23 @@ module QaRails
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    config.time_zone = 'Tokyo'
+    config.active_record.default_timezone = :local
+
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+          origins "localhost:3000", "https://qa-next.vercel.app/"
+          resource "*",
+          headers: :any,
+          methods: [:get, :post, :options, :head]
+      end
+    end
   end
 end
