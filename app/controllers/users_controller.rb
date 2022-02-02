@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show update destroy ]
+  before_action :auth
 
   # GET /users
   def index
@@ -42,6 +43,11 @@ class UsersController < ApplicationController
   end
 
   private
+    def auth
+      if params[:token] != ( Rails.env.production? ? ENV.fetch("API_TOKEN") : "token_test" )
+        render json: { "message": "token_error" }, status: :unauthorized and return
+      end
+    end
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])

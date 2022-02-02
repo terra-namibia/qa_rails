@@ -1,5 +1,6 @@
 class ScoresController < ApplicationController
   before_action :set_score, only: %i[ show update destroy ]
+  before_action :auth, except: %i[ hello ]
 
   def hello
     # ユーザごとのベストscore 30人まで
@@ -9,6 +10,13 @@ class ScoresController < ApplicationController
 
   # GET /scores
   def index
+    # ユーザごとのベストscore 30人まで
+    @scores = Score.all
+
+    render json: @scores
+  end
+
+  def user_scores
     # ユーザごとのベストscore 30人まで
     @scores = User.eager_load(:scores).where("scores.score > 0").order(score: :desc).map{ |user| { user_name: user.user_name, score: user.scores[0].try(:score), date: user.scores[0].try(:created_at).strftime("%Y-%m-%d %H:%M:%S") } }.first(30)
 
@@ -52,6 +60,11 @@ class ScoresController < ApplicationController
   end
 
   private
+    def auth
+      if params[:token] != ( Rails.env.production? ? ENV.fetch("API_TOKEN") : "token_test" )
+        render json: { "message": "token_error" }, status: :unauthorized and return
+      end
+    end
     # Use callbacks to share common setup or constraints between actions.
     def set_score
       @score = Score.find(params[:id])
