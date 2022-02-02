@@ -61,7 +61,7 @@ class ScoresController < ApplicationController
 
   private
     def auth
-      if params[:token] != ( Rails.env.production? ? ENV.fetch("API_TOKEN") : "token_test" )
+      if params[:token] != ENV.fetch("API_TOKEN", "")
         render json: { "message": "token_error" }, status: :unauthorized and return
       end
     end
