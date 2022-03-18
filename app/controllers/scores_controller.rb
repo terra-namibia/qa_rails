@@ -76,6 +76,7 @@ class ScoresController < ApplicationController
     end
 
     def user_params
+      params[:user].require(:user_name)
       params.require(:user).permit(:user_name, :auth_provider)
     end
 end
