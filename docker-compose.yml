@@ -1,0 +1,37 @@
+version: "3"
+services:
+  db:
+    # コンテナ名の指定
+    container_name: rails_db
+    # イメージの指定
+    image: postgres:14.2-alpine
+    # データの永続化（ホスト側のtmp/dbディレクトリにマウントする）
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    # 環境変数の指定（初期設定値）
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: qa_rails_development
+      POSTGRES_PASSWORD: postgres
+      # POSTGRES_USER: admin
+      # POSTGRES_DB: qa_rails_development
+      # POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+
+  web:
+    # コンテナ名の指定
+    container_name: rails_web
+    # Dockerfile のあるディレクトリのパスを指定（imageかbuildを必ず指定する必要がある）
+    build: .
+    # デフォルトのコマンド指定（Rails特有の問題解消とRails立ち上げを指定している）
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    # データの永続化（ホスト側のカレントディレクトリにマウントする）
+    volumes:
+      - .:/myapp
+    # ポートの指定（外部からのアクセス時のポート：Dockerコンテナからアクセス時のポート）
+    ports:
+      - "3000:3000"
+    # 依存関係の指定（dbが起動した後に、webが起動するようになる）
+    depends_on:
+      - db
